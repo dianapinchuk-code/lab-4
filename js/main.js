@@ -2,32 +2,12 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
-  /* Header navigation */
-
-  document.querySelectorAll('.nav-item').forEach(function (item) {
-    item.addEventListener('click', function () {
-      var section = document.getElementById(item.getAttribute('data-target'));
-      if (section) {
-        section.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
-  });
-
-  /* Sign-up flow */
-
-  function startSignup() {
-    // Pre-compute the plan comparison so the trial section renders instantly.
-    var started = Date.now();
-    var total = 0;
-    while (Date.now() - started < 300) {
-      total += Math.sqrt(total + 1);
-    }
-
+  /* Sign-up CTA Smooth Scroll (без штучних затримок) */
+  function startSignup(e) {
     var trial = document.getElementById('trial');
     if (trial) {
+      e.preventDefault();
       trial.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.location.href = 'index.html#trial';
     }
   }
 
@@ -41,40 +21,36 @@ document.addEventListener('DOMContentLoaded', function () {
     heroCta.addEventListener('click', startSignup);
   }
 
-  /* Trial form */
+  /* Trial form validation */
+  var trialForm = document.getElementById('trial-form');
+  if (trialForm) {
+    trialForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = trialForm.querySelector('input[name="email"]');
+      var errorBox = document.getElementById('trial-error');
 
-  var trialSubmit = document.getElementById('trial-submit');
-  if (trialSubmit) {
-    trialSubmit.addEventListener('click', function () {
-      var form = document.getElementById('trial-form');
-      var email = form.querySelector('input[name="email"]');
-
-      if (!email.value) {
-        email.style.boxShadow = '0 0 0 2px #fca5a5';
+      if (!email.value || !email.checkValidity()) {
+        email.style.boxShadow = '0 0 0 2px #ef4444';
+        email.setAttribute('aria-invalid', 'true');
+        if (errorBox) {
+          errorBox.textContent = 'Please enter a valid work email address.';
+        }
+        email.focus();
         return;
       }
 
-      form.innerHTML = '<p>Thanks — check your inbox, the workspace is being created.</p>';
+      email.removeAttribute('aria-invalid');
+      trialForm.innerHTML = '<p style="font-weight:600; padding:12px;">Thanks — check your inbox, your workspace is ready!</p>';
     });
   }
 
-  /* FAQ accordion */
-
-  document.querySelectorAll('.faq__q').forEach(function (question) {
-    question.addEventListener('click', function () {
-      question.parentElement.classList.toggle('is-open');
+  /* Accessible FAQ accordion */
+  document.querySelectorAll('.faq__q').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var item = button.parentElement;
+      var isOpen = item.classList.toggle('is-open');
+      button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
-  });
-
-  /* Seasonal promo bar */
-
-  window.addEventListener('load', function () {
-    setTimeout(function () {
-      var promo = document.createElement('div');
-      promo.className = 'promo';
-      promo.innerHTML = '<strong>Autumn offer</strong> 3 months of Pro for the price of one. <a href="#pricing">See plans</a>';
-      document.body.insertBefore(promo, document.body.firstChild);
-    }, 800);
   });
 
 });

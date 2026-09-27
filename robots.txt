@@ -1,4 +1,4 @@
 User-agent: *
-Disallow: /css/
-Disallow: /img/
-Disallow: /admin/
+Allow: /
+
+Sitemap: https://lab-4-peach.vercel.app/sitemap.xml
